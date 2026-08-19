@@ -40,6 +40,9 @@ fun AppNavigation(navController: NavHostController, vm: MainViewModel = viewMode
         composable("hexcopy") { HexCopyScreen(navController) }
         composable("elfsymbol") { ELFSymbolScreen(navController) }
         composable("inlinehook") { InlineHookScreen(navController) }
+        composable("shellscript") { ShellScriptScreen(navController) }
+        composable("elfheader") { ElfHeaderScreen(navController) }
+        composable("packer") { PackerDetectionScreen(navController) }
         composable(
             "search?query={query}",
             arguments = listOf(navArgument("query") { type = NavType.StringType; defaultValue = "" })

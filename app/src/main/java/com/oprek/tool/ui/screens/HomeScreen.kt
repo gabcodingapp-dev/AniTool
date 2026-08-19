@@ -122,6 +122,9 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
                 ToolItem("Hex Copy", "Export bytes as C/Python", Icons.Outlined.ContentCopy, AccentPurple, "hexcopy"),
                 ToolItem("ELF Symbols", "Symbol table + dynamic", Icons.Outlined.DataObject, AccentCyan, "elfsymbol"),
                 ToolItem("Hook Generator", "LD_PRELOAD + trampoline", Icons.Outlined.Link, AccentOrange, "inlinehook"),
+                ToolItem("Shell Script", "Parse + extract binary", Icons.Outlined.Description, AccentGreen, "shellscript"),
+                ToolItem("ELF Full Header", "All ELF fields", Icons.Outlined.DataObject, AccentCyan, "elfheader"),
+                ToolItem("Packer Detect", "UPX/Themida/OLLMV", Icons.Outlined.Security, AccentRed, "packer"),
                 ToolItem("File Info", "Hash, magic, metadata", Icons.Outlined.Info, AccentBlue, "info"),
                 ToolItem("Terminal", "Run shell commands", Icons.Outlined.Terminal, AccentRed, "terminal"),
             )

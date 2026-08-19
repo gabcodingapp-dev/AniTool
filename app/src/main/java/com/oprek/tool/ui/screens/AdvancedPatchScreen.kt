@@ -76,10 +76,21 @@ fun AdvancedPatchScreen(navController: NavController) {
                     Button(onClick = {
                         isScanning = true
                         scope.launch(Dispatchers.Default) {
-                            val file = File(context.cacheDir, "oprek").listFiles()?.firstOrNull()
-                            if (file != null) {
-                                val data = withContext(Dispatchers.IO) { file.readBytes() }
-                                recommendations = withContext(Dispatchers.Default) { com.oprek.tool.utils.PatternDetector.detectPatchPatterns(data) }
+                            try {
+                                val file = File(context.cacheDir, "oprek").listFiles()?.firstOrNull()
+                                if (file != null) {
+                                    val data = withContext(Dispatchers.IO) {
+                                        val raf = java.io.RandomAccessFile(file, "r")
+                                        val size = minOf(raf.length(), 5_000_000L).toInt()
+                                        val buf = ByteArray(size)
+                                        raf.readFully(buf)
+                                        raf.close()
+                                        buf
+                                    }
+                                    recommendations = withContext(Dispatchers.Default) { com.oprek.tool.utils.PatternDetector.detectPatchPatterns(data) }
+                                }
+                            } catch (e: Exception) {
+                                result = "Scan error: ${e.message}"
                             }
                             isScanning = false
                         }

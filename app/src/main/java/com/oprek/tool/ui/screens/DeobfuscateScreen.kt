@@ -75,11 +75,20 @@ fun DeobfuscateScreen(navController: NavController) {
                     Button(onClick = {
                         isScanning = true
                         scope.launch(Dispatchers.Default) {
-                            val file = File(context.cacheDir, "oprek").listFiles()?.firstOrNull()
-                            if (file != null) {
-                                val data = withContext(Dispatchers.IO) { file.readBytes().copyOf(minOf(file.length().toInt(), 2_000_000)) }
-                                autoDetected = withContext(Dispatchers.Default) { PatternDetector.detectObfuscatedStrings(data) }
-                            }
+                            try {
+                                val file = File(context.cacheDir, "oprek").listFiles()?.firstOrNull()
+                                if (file != null) {
+                                    val data = withContext(Dispatchers.IO) {
+                                        val raf = java.io.RandomAccessFile(file, "r")
+                                        val size = minOf(raf.length(), 5_000_000L).toInt()
+                                        val buf = ByteArray(size)
+                                        raf.readFully(buf)
+                                        raf.close()
+                                        buf
+                                    }
+                                    autoDetected = withContext(Dispatchers.Default) { PatternDetector.detectObfuscatedStrings(data) }
+                                }
+                            } catch (_: Exception) {}
                             isScanning = false
                         }
                     }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = AccentPurple), shape = RoundedCornerShape(8.dp),

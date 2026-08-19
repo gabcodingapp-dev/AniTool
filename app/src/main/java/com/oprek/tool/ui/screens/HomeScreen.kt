@@ -1,0 +1,257 @@
+package com.oprek.tool.ui.screens
+
+import android.app.Activity
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.*
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.oprek.tool.MainViewModel
+import com.oprek.tool.core.FileType
+import com.oprek.tool.ui.theme.*
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(navController: NavController, vm: MainViewModel) {
+    val context = LocalContext.current
+    val currentFile by vm.currentFile.collectAsState()
+    val isLoading by vm.isLoading.collectAsState()
+    val statusMessage by vm.statusMessage.collectAsState()
+
+    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            vm.loadFile(it)
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("⚡", fontSize = 24.sp)
+                        Spacer(Modifier.width(8.dp))
+                        Column {
+                            Text("OprekTool", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text("Reverse Engineering Toolkit", fontSize = 11.sp, color = TextSecondary)
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+            )
+        },
+        containerColor = DarkBg
+    ) { padding ->
+        Column(
+            Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            // File info card
+            currentFile?.let { info ->
+                FileInfoCard(info)
+            } ?: run {
+                // Welcome + file picker
+                HeroSection { filePicker.launch(arrayOf("*/*")) }
+            }
+
+            // Status
+            if (statusMessage.isNotEmpty()) {
+                StatusBanner(statusMessage) { vm.clearStatus() }
+            }
+
+            if (isLoading) {
+                LinearProgressIndicator(
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    color = AccentGreen
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // Tool grid
+            Text("  Tools", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+            Spacer(Modifier.height(8.dp))
+
+            val tools = listOf(
+                ToolItem("Hex Viewer", "View & edit raw bytes", Icons.Outlined.Code, AccentGreen, "hex"),
+                ToolItem("Strings", "Extract readable text", Icons.Outlined.TextSnippet, AccentBlue, "strings"),
+                ToolItem("ELF Info", "Parse ELF headers & sections", Icons.Outlined.Memory, AccentPurple, "elf"),
+                ToolItem("APK Info", "Analyze APK structure", Icons.Outlined.Apps, AccentOrange, "apk"),
+                ToolItem("Patch Editor", "Binary patching tool", Icons.Outlined.Build, AccentRed, "patch"),
+                ToolItem("File Info", "Hash, magic, metadata", Icons.Outlined.Info, AccentCyan, "info"),
+                ToolItem("Terminal", "Run shell commands", Icons.Outlined.Terminal, AccentGreen, "terminal"),
+                ToolItem("Search", "Find bytes/patterns", Icons.Outlined.Search, AccentPurple, "search"),
+            )
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(((tools.size / 2 + tools.size % 2) * 100).dp)
+                    .padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(tools) { tool ->
+                    ToolCard(tool) {
+                        when (tool.route) {
+                            "search" -> navController.navigate("search?query=")
+                            else -> navController.navigate(tool.route)
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+fun HeroSection(onPickFile: () -> Unit) {
+    Card(
+        Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        colors = CardDefaults.cardColors(containerColor = DarkCard),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("🔬", fontSize = 48.sp)
+            Spacer(Modifier.height(12.dp))
+            Text("Reverse Engineering Toolkit", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextPrimary)
+            Text("Analyze .sh, .apk, .so, .elf, .bin files", fontSize = 13.sp, color = TextSecondary)
+            Spacer(Modifier.height(16.dp))
+            Button(
+                onClick = onPickFile,
+                colors = ButtonDefaults.buttonColors(containerColor = AccentGreen),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Outlined.FolderOpen, null, Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Open File", fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+@Composable
+fun FileInfoCard(info: com.oprek.tool.core.FileInfo) {
+    Card(
+        Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        colors = CardDefaults.cardColors(containerColor = DarkCard),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                val typeIcon = when (info.type) {
+                    FileType.ELF, FileType.SO -> "📦"
+                    FileType.APK -> "📱"
+                    FileType.SH -> "📜"
+                    FileType.BIN -> "💾"
+                    else -> "📄"
+                }
+                Text(typeIcon, fontSize = 32.sp)
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(info.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                    Text(info.type.name + " • " + formatSize(info.size), fontSize = 13.sp, color = TextSecondary)
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            InfoRow("Magic", info.magic)
+            InfoRow("MD5", info.md5)
+            InfoRow("SHA256", info.sha256.take(32) + "...")
+        }
+    }
+}
+
+@Composable
+fun InfoRow(label: String, value: String) {
+    Row(Modifier.padding(vertical = 2.dp)) {
+        Text("$label: ", fontSize = 11.sp, color = TextMuted, fontFamily = FontFamily.Monospace)
+        Text(value, fontSize = 11.sp, color = AccentCyan, fontFamily = FontFamily.Monospace,
+            maxLines = 1, modifier = Modifier.horizontalScroll(rememberScrollState()))
+    }
+}
+
+@Composable
+fun StatusBanner(message: String, onDismiss: () -> Unit) {
+    Card(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = AccentGreen.copy(alpha = 0.15f)),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("✓ ", color = AccentGreen, fontWeight = FontWeight.Bold)
+            Text(message, fontSize = 12.sp, color = AccentGreen, modifier = Modifier.weight(1f))
+            IconButton(onClick = onDismiss, Modifier.size(20.dp)) {
+                Icon(Icons.Filled.Close, null, Modifier.size(14.dp), tint = AccentGreen)
+            }
+        }
+    }
+}
+
+@Composable
+fun ToolCard(tool: ToolItem, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = DarkCard),
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.height(90.dp)
+    ) {
+        Column(
+            Modifier
+                .padding(12.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(tool.icon, null, tint = tool.color, modifier = Modifier.size(28.dp))
+            Spacer(Modifier.height(6.dp))
+            Text(tool.name, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = TextPrimary)
+            Text(tool.desc, fontSize = 10.sp, color = TextSecondary, maxLines = 1)
+        }
+    }
+}
+
+data class ToolItem(val name: String, val desc: String, val icon: ImageVector, val color: Color, val route: String)
+
+private fun formatSize(bytes: Long): String = when {
+    bytes < 1024 -> "${bytes}B"
+    bytes < 1048576 -> "${bytes / 1024}KB"
+    else -> "${"%.1f".format(bytes / 1048576.0)}MB"
+}

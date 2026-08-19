@@ -74,13 +74,13 @@ fun ObfuscateScreen(navController: NavController) {
                     Spacer(Modifier.height(8.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         modes.take(4).forEach { (key, label) ->
-                            DeobChip(label, selectedMode == key) { selectedMode = key }
+                            ModeChip(label, selectedMode == key) { selectedMode = key }
                         }
                     }
                     Spacer(Modifier.height(6.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         modes.drop(4).forEach { (key, label) ->
-                            DeobChip(label, selectedMode == key) { selectedMode = key }
+                            ModeChip(label, selectedMode == key) { selectedMode = key }
                         }
                     }
 

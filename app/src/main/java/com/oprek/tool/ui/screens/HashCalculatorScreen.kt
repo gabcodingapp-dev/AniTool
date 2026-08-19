@@ -24,6 +24,9 @@ import com.oprek.tool.ui.theme.*
 import java.io.File
 import java.security.MessageDigest
 import java.util.zip.CRC32
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

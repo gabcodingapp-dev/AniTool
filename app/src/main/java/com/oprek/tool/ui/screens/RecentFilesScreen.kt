@@ -13,6 +13,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -23,27 +25,29 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-data class RecentFile(val name: String, val path: String, val timestamp: Long, val size: Long)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecentFilesScreen(navController: NavController, onFileSelected: (String) -> Unit = {}) {
     val context = LocalContext.current
-    val recents = remember { mutableStateListOf<RecentFile>() }
+    val recents = remember { mutableStateListOf<RecentFileEntry>() }
 
     LaunchedEffect(Unit) {
         val prefs = context.getSharedPreferences("oprek_recent", Context.MODE_PRIVATE)
-        val entries = prefs.getStringSet("files", emptySet()) ?: emptySet()
-        entries.forEach { entry ->
-            val parts = entry.split("|")
-            if (parts.size >= 3) {
-                val f = File(parts[1])
-                if (f.exists()) {
-                    recents.add(RecentFile(parts[0], parts[1], parts[2].toLongOrNull() ?: 0, f.length()))
+        val all = prefs.all
+        val entries = mutableListOf<RecentFileEntry>()
+        all.forEach { (key, value) ->
+            if (key.startsWith("file_") && value is String) {
+                val parts = value.split("|")
+                if (parts.size >= 2) {
+                    val f = File(parts[1])
+                    if (f.exists()) {
+                        entries.add(RecentFileEntry(parts[0], parts[1], parts.getOrElse(2) { "0" }.toLongOrNull() ?: 0, f.length()))
+                    }
                 }
             }
         }
-        recents.sortByDescending { it.timestamp }
+        recents.clear()
+        recents.addAll(entries.sortedByDescending { it.timestamp })
     }
 
     Scaffold(
@@ -52,7 +56,7 @@ fun RecentFilesScreen(navController: NavController, onFileSelected: (String) -> 
                 navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
                 actions = {
                     IconButton(onClick = {
-                        context.getSharedPreferences("oprek_recent", Context.MODE_PRIVATE).edit().remove("files").apply()
+                        context.getSharedPreferences("oprek_recent", Context.MODE_PRIVATE).edit().clear().apply()
                         recents.clear()
                     }) { Icon(Icons.Default.DeleteSweep, "Clear All") }
                 },
@@ -80,10 +84,7 @@ fun RecentFilesScreen(navController: NavController, onFileSelected: (String) -> 
                             }
                             IconButton(onClick = {
                                 recents.removeAt(idx)
-                                val prefs = context.getSharedPreferences("oprek_recent", Context.MODE_PRIVATE)
-                                val set = prefs.getStringSet("files", emptySet())?.toMutableSet() ?: mutableSetOf()
-                                set.remove("${rf.name}|${rf.path}|${rf.timestamp}")
-                                prefs.edit().putStringSet("files", set).apply()
+                                context.getSharedPreferences("oprek_recent", Context.MODE_PRIVATE).edit().remove("file_$idx").apply()
                             }, modifier = Modifier.size(28.dp)) { Icon(Icons.Default.Close, "Remove", Modifier.size(14.dp), tint = AccentRed) }
                         }
                     }
@@ -93,12 +94,23 @@ fun RecentFilesScreen(navController: NavController, onFileSelected: (String) -> 
     }
 }
 
+data class RecentFileEntry(val name: String, val path: String, val timestamp: Long, val size: Long)
+
 fun addRecentFile(context: Context, name: String, path: String) {
     val prefs = context.getSharedPreferences("oprek_recent", Context.MODE_PRIVATE)
-    val set = prefs.getStringSet("files", emptySet())?.toMutableSet() ?: mutableSetOf()
-    set.add("$name|$path|${System.currentTimeMillis()}")
-    if (set.size > 50) { val list = set.toList().takeLast(50); set.clear(); set.addAll(list) }
-    prefs.edit().putStringSet("files", set).apply()
+    val editor = prefs.edit()
+    var idx = 0
+    while (prefs.contains("file_$idx")) idx++
+    editor.putString("file_$idx", "$name|$path|${System.currentTimeMillis()}")
+    // Keep max 50
+    var count = 0
+    while (prefs.contains("file_${count}")) count++
+    if (count > 50) {
+        for (i in 0..(count - 50)) {
+            if (prefs.contains("file_$i")) editor.remove("file_$i")
+        }
+    }
+    editor.apply()
 }
 
-private fun formatSize(bytes: Long) = when { bytes < 1024 -> "${bytes}B"; bytes < 1048576 -> "${bytes/1024}KB"; else -> "${"%.1f".format(bytes/1048576.0)}MB" }
+private fun formatSize(bytes: Long) = when { bytes < 1024 -> "${bytes}B"; bytes < 1048576 -> "${bytes / 1024}KB"; else -> "${"%.1f".format(bytes / 1048576.0)}MB" }

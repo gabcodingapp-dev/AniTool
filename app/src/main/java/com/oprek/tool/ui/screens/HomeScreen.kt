@@ -29,6 +29,7 @@ import androidx.navigation.NavController
 import com.oprek.tool.MainViewModel
 import com.oprek.tool.core.FileType
 import com.oprek.tool.ui.theme.*
+import android.content.Intent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

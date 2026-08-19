@@ -38,7 +38,7 @@ Java_com_oprek_tool_core_NativeLib_elfGetInfo(JNIEnv *env, jclass, jbyteArray da
         "Program Headers: %u @ 0x%lX\n"
         "Section Headers: %u @ 0x%lX\n"
         "Section StrTab idx: %u\n"
-        "File size: %lu bytes",
+        "File size: %zu bytes",
         info.is_64 ? "ELF64" : "ELF32",
         info.is_le ? "Little Endian" : "Big Endian",
         info.entry, info.phnum, info.phoff,

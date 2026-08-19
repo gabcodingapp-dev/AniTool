@@ -97,11 +97,11 @@ fun AdvancedPatchScreen(navController: NavController) {
                             val replaceBytes = replaceStr.toByteArray().copyOf(searchBytes.size)
                             var count = 0
                             var pos = 0
-                            while (pos < data.size - searchBytes.size) {
-                                val idx = data.indexOf(searchBytes, pos)
-                                if (idx < 0) break
-                                System.arraycopy(replaceBytes, 0, data, idx, replaceBytes.size)
-                                count++; pos = idx + 1
+                            while (pos <= data.size - searchBytes.size) {
+                                var found = true
+                                for (j in searchBytes.indices) { if (data[pos + j] != searchBytes[j]) { found = false; break } }
+                                if (found) { System.arraycopy(replaceBytes, 0, data, pos, replaceBytes.size); count++ }
+                                pos++
                             }
                             if (count > 0) {
                                 FileAnalyzer.patchBytes(file, 0, data)

@@ -1,9 +1,15 @@
 package com.oprek.tool.ui.screens
 
-import androidx.compose.foundation.*
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,7 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -29,68 +35,103 @@ import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-data class TerminalLine(val text: String, val isCommand: Boolean, val isError: Boolean = false)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TerminalScreen(navController: NavController) {
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val listState = rememberLazyListState()
     var command by remember { mutableStateOf("") }
     val lines = remember { mutableStateListOf<TerminalLine>() }
     var isRunning by remember { mutableStateOf(false) }
+    val history = remember { mutableStateListOf<String>() }
+    var historyIdx by remember { mutableIntStateOf(-1) }
 
-    fun runCommand(cmd: String) {
+    fun addLine(text: String, isCmd: Boolean = false, isError: Boolean = false) {
+        lines.add(TerminalLine(text, isCmd, isError))
+    }
+
+    fun runCmd(cmd: String) {
         if (cmd.isBlank()) return
-        lines.add(TerminalLine("$ $cmd", isCommand = true))
+        history.add(cmd)
+        historyIdx = history.size
+        addLine("$ $cmd", isCmd = true)
         isRunning = true
+
         scope.launch(Dispatchers.IO) {
             try {
-                val process = Runtime.getRuntime().exec(arrayOf("/system/bin/sh", "-c", cmd))
-                val reader = BufferedReader(InputStreamReader(process.inputStream))
-                val errReader = BufferedReader(InputStreamReader(process.errorStream))
+                val parts = cmd.trim().split("\\s+".toRegex())
+                if (parts.isEmpty()) { isRunning = false; return@launch }
 
-                var line: String?
-                while (reader.readLine().also { line = it } != null) {
-                    withContext(Dispatchers.Main) {
-                        lines.add(TerminalLine(line!!, isCommand = false))
+                when (parts[0]) {
+                    "clear" -> withContext(Dispatchers.Main) { lines.clear() }
+                    "help" -> withContext(Dispatchers.Main) {
+                        addLine("Built-in commands: clear, help, logcat, share")
+                        addLine("System commands: ls, cat, file, strings, xxd, readelf, objdump")
                     }
-                }
-                while (errReader.readLine().also { line = it } != null) {
-                    withContext(Dispatchers.Main) {
-                        lines.add(TerminalLine(line!!, isCommand = false, isError = true))
+                    "logcat" -> {
+                        val filter = if (parts.size > 1) parts.drop(1).joinToString(" ") else ""
+                        val proc = Runtime.getRuntime().exec(arrayOf("/system/bin/sh", "-c", "logcat -d -t 100 $filter"))
+                        BufferedReader(InputStreamReader(proc.inputStream)).useLines { seq ->
+                            seq.forEach { line ->
+                                scope.launch(Dispatchers.Main) { addLine(line) }
+                            }
+                        }
                     }
-                }
-                val exitCode = process.waitFor()
-                withContext(Dispatchers.Main) {
-                    lines.add(TerminalLine("[exit: $exitCode]", isCommand = false, isError = exitCode != 0))
+                    "share" -> {
+                        val text = lines.joinToString("\n") { it.text }
+                        withContext(Dispatchers.Main) {
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, text)
+                            }
+                            context.startActivity(Intent.createChooser(intent, "Share terminal output"))
+                        }
+                    }
+                    else -> {
+                        val proc = Runtime.getRuntime().exec(arrayOf("/system/bin/sh", "-c", cmd))
+                        val stdout = BufferedReader(InputStreamReader(proc.inputStream))
+                        val stderr = BufferedReader(InputStreamReader(proc.errorStream))
+
+                        var line: String?
+                        while (stdout.readLine().also { line = it } != null) {
+                            line?.let { l ->
+                                withContext(Dispatchers.Main) { addLine(l) }
+                            }
+                        }
+                        while (stderr.readLine().also { line = it } != null) {
+                            line?.let { l ->
+                                withContext(Dispatchers.Main) { addLine(l, isError = true) }
+                            }
+                        }
+                        val exitCode = proc.waitFor()
+                        withContext(Dispatchers.Main) { addLine("[exit: $exitCode]", isError = exitCode != 0) }
+                    }
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    lines.add(TerminalLine("Error: ${e.message}", isCommand = false, isError = true))
-                }
+                withContext(Dispatchers.Main) { addLine("Error: ${e.message}", isError = true) }
             }
-            isRunning = false
+            withContext(Dispatchers.Main) { isRunning = false }
         }
     }
 
     LaunchedEffect(lines.size) {
-        listState.animateScrollToItem(lines.size - 1)
+        if (lines.isNotEmpty()) listState.animateScrollToItem(lines.size - 1)
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Terminal", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
-                    }
-                },
+                title = { Text("💻 Terminal", fontWeight = FontWeight.Bold) },
+                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
                 actions = {
-                    IconButton(onClick = { lines.clear() }) {
-                        Icon(Icons.Default.DeleteSweep, "Clear")
-                    }
+                    IconButton(onClick = { lines.clear() }) { Icon(Icons.Default.DeleteSweep, "Clear") }
+                    IconButton(onClick = {
+                        val text = lines.joinToString("\n") { it.text }
+                        val cb = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        cb.setPrimaryClip(ClipData.newPlainText("terminal", text))
+                        Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
+                    }) { Icon(Icons.Default.ContentCopy, "Copy All") }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
             )
@@ -98,46 +139,39 @@ fun TerminalScreen(navController: NavController) {
         containerColor = Color(0xFF0A0E14)
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
-            // Terminal output
             LazyColumn(
                 state = listState,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .background(Color(0xFF0A0E14))
-                    .padding(8.dp)
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                // Welcome message
                 if (lines.isEmpty()) {
                     item {
-                        Text("OprekTool Terminal v1.0\nType a command below.\n", fontSize = 12.sp,
+                        Text("OprekTool Terminal v2.0\nType 'help' for built-in commands.\n", fontSize = 12.sp,
                             fontFamily = FontFamily.Monospace, color = AccentGreen)
                     }
                 }
-                items(lines) { line ->
+                itemsIndexed(lines) { _, line ->
                     Text(
                         line.text,
                         fontSize = 12.sp,
                         fontFamily = FontFamily.Monospace,
-                        color = when {
-                            line.isCommand -> AccentCyan
-                            line.isError -> AccentRed
-                            else -> AccentGreen
-                        },
+                        color = when { line.isCommand -> AccentCyan; line.isError -> AccentRed; else -> AccentGreen },
                         modifier = Modifier.padding(vertical = 1.dp)
+                            .clickable {
+                                val cb = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                cb.setPrimaryClip(ClipData.newPlainText("line", line.text))
+                            }
                     )
                 }
             }
 
-            // Divider
             HorizontalDivider(color = AccentGreen.copy(alpha = 0.3f))
 
-            // Input
             Row(
-                Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFF0D1117))
-                    .padding(8.dp),
+                Modifier.fillMaxWidth().background(Color(0xFF0D1117)).padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("$ ", fontSize = 14.sp, fontFamily = FontFamily.Monospace, color = AccentGreen)
@@ -148,15 +182,11 @@ fun TerminalScreen(navController: NavController) {
                     placeholder = { Text("Enter command...", color = TextMuted) },
                     singleLine = true,
                     enabled = !isRunning,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = AccentGreen,
-                        cursorColor = AccentGreen,
-                        unfocusedBorderColor = Color.Transparent
-                    )
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentGreen, cursorColor = AccentGreen, unfocusedBorderColor = Color.Transparent)
                 )
                 IconButton(onClick = {
-                    runCommand(command)
+                    runCmd(command)
                     command = ""
                 }, enabled = command.isNotEmpty() && !isRunning) {
                     Icon(Icons.Default.Send, "Run", tint = if (command.isNotEmpty()) AccentGreen else TextMuted)
@@ -165,3 +195,5 @@ fun TerminalScreen(navController: NavController) {
         }
     }
 }
+
+data class TerminalLine(val text: String, val isCommand: Boolean = false, val isError: Boolean = false)

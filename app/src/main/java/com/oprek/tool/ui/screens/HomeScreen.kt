@@ -1,7 +1,5 @@
 package com.oprek.tool.ui.screens
 
-import android.app.Activity
-import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
@@ -26,7 +24,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.oprek.tool.MainViewModel
@@ -106,11 +103,23 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
                 ToolItem("APK Info", "Analyze APK structure", Icons.Outlined.Apps, AccentOrange, "apk"),
                 ToolItem("Android Tools", "DEX, classes, Smali", Icons.Outlined.PhoneAndroid, AccentGreen, "android"),
                 ToolItem("Patch Editor", "Binary patching tool", Icons.Outlined.Build, AccentRed, "patch"),
+                ToolItem("Adv. Patch", "NOP/RET/String patch", Icons.Outlined.Bolt, AccentPurple, "advpatch"),
                 ToolItem("Deobfuscate", "Decode/decrypt strings", Icons.Outlined.Key, AccentCyan, "deobfuscate"),
                 ToolItem("Obfuscate", "Encode/encrypt strings", Icons.Outlined.Lock, AccentOrange, "obfuscate"),
-                ToolItem("Memory Analyzer", "Entropy, packer detect", Icons.Outlined.Analytics, AccentPurple, "memory"),
+                ToolItem("Frida Hook", "Generate hook scripts", Icons.Outlined.Code, AccentGreen, "frida"),
+                ToolItem("Anti-Debug", "Detect debuggers", Icons.Outlined.Shield, AccentRed, "antidebug"),
+                ToolItem("Hash Calculator", "MD5/SHA/CRC32", Icons.Outlined.Security, AccentOrange, "hash"),
+                ToolItem("Key Generator", "Generate random keys", Icons.Outlined.VpnKey, AccentPurple, "keygen"),
+                ToolItem("Base64/Hex", "Encode/decode strings", Icons.Outlined.Transform, AccentCyan, "base64"),
+                ToolItem("Diff Tool", "Compare two files", Icons.Outlined.Compare, AccentGreen, "diff"),
+                ToolItem("Manifest Reader", "APK permissions", Icons.Outlined.Description, AccentBlue, "manifest"),
+                ToolItem("Bookmarks", "Save important offsets", Icons.Outlined.Bookmark, AccentOrange, "bookmark"),
+                ToolItem("Export Report", "Save analysis report", Icons.Outlined.Share, AccentPurple, "export"),
+                ToolItem("Recent Files", "History of opened files", Icons.Outlined.History, AccentCyan, "recent"),
+                ToolItem("Memory Analyzer", "Entropy, packer detect", Icons.Outlined.Analytics, AccentRed, "memory"),
+                ToolItem("Logcat", "Capture Android logs", Icons.Outlined.List, AccentGreen, "logcat"),
                 ToolItem("File Info", "Hash, magic, metadata", Icons.Outlined.Info, AccentBlue, "info"),
-                ToolItem("Terminal", "Run shell commands", Icons.Outlined.Terminal, AccentGreen, "terminal"),
+                ToolItem("Terminal", "Run shell commands", Icons.Outlined.Terminal, AccentOrange, "terminal"),
             )
 
             LazyVerticalGrid(

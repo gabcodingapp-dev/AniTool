@@ -19,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.oprek.tool.core.FileAnalyzer
 import com.oprek.tool.core.NativeLib
 import com.oprek.tool.ui.theme.*
 import kotlinx.coroutines.Dispatchers

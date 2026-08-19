@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.oprek.tool.ui.screens.*
 
-@Suppress("UNUSED")
 @Composable
 fun AppNavigation(navController: NavHostController, vm: MainViewModel = viewModel()) {
     NavHost(navController = navController, startDestination = "home") {
@@ -26,6 +25,18 @@ fun AppNavigation(navController: NavHostController, vm: MainViewModel = viewMode
         composable("disasm") { DisassemblerScreen(navController) }
         composable("memory") { MemoryAnalyzerScreen(navController) }
         composable("android") { AndroidToolsScreen(navController) }
+        composable("hash") { HashCalculatorScreen(navController) }
+        composable("bookmark") { BookmarkScreen(navController) }
+        composable("diff") { DiffToolScreen(navController) }
+        composable("advpatch") { AdvancedPatchScreen(navController) }
+        composable("keygen") { KeygenScreen(navController) }
+        composable("manifest") { ManifestReaderScreen(navController) }
+        composable("frida") { FridaHookScreen(navController) }
+        composable("export") { ExportScreen(navController) }
+        composable("recent") { RecentFilesScreen(navController) }
+        composable("base64") { Base64Screen(navController) }
+        composable("antidebug") { AntiDebugScreen(navController) }
+        composable("logcat") { LogcatScreen(navController) }
         composable(
             "search?query={query}",
             arguments = listOf(navArgument("query") { type = NavType.StringType; defaultValue = "" })

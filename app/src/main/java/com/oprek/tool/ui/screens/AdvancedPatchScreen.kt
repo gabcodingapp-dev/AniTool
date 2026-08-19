@@ -146,7 +146,7 @@ fun AdvancedPatchScreen(navController: NavController) {
                                         } catch (e: Exception) { result = "Error: ${e.message}" }
                                     }
                                 }, modifier = Modifier.size(28.dp)) {
-                                    Icon(Icons.Default.FixPitch, "Patch", Modifier.size(16.dp), tint = severityColor)
+                                    Icon(Icons.Default.Build, "Patch", Modifier.size(16.dp), tint = severityColor)
                                 }
                             }
                         }

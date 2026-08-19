@@ -109,7 +109,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO) {
             _currentRawFile.value?.let { file ->
                 if (FileAnalyzer.patchByte(file, offset, newByte)) {
-                    _patches.value = _patches.value + PatchEntry(offset, newByte, "byte")
+                    _patches.value = _patches.value + PatchEntry(offset, byteArrayOf(newByte), "byte")
                     _statusMessage.value = "Patched byte at 0x${"%08X".format(offset)}"
                     // Reload hex
                     loadHex(maxOf(0, offset - 128), 512)

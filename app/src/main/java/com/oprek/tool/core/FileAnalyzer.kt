@@ -60,7 +60,7 @@ object FileAnalyzer {
                 sb.append(b.toChar())
             } else {
                 if (sb.length >= minLength) {
-                    strings.add(StringPair(i - sb.length, sb.toString()))
+                    strings.add(StringPair(i.toLong() - sb.length, sb.toString()))
                 }
                 sb.clear()
             }
@@ -142,12 +142,12 @@ object FileAnalyzer {
         val shentsize = if (is64) 64 else 40
 
         for (i in 0 until shnum) {
-            val base = shoff + i * shentsize
+            val base = shoff + i.toLong() * shentsize
             if (base + shentsize > bytes.size) break
-            val nameIdx = readU32(bytes, base, isLE)
-            val offset = if (is64) readU64(bytes, base + 24, isLE) else readU32(bytes, base + 16, isLE).toLong()
-            val size = if (is64) readU64(bytes, base + 32, isLE) else readU32(bytes, base + 20, isLE).toLong()
-            val sectType = readU32(bytes, base + 4, isLE)
+            val nameIdx = readU32(bytes, base.toInt(), isLE)
+            val offset = if (is64) readU64(bytes, base.toInt() + 24, isLE) else readU32(bytes, base.toInt() + 16, isLE).toLong()
+            val size = if (is64) readU64(bytes, base.toInt() + 32, isLE) else readU32(bytes, base.toInt() + 20, isLE).toLong()
+            val sectType = readU32(bytes, base.toInt() + 4, isLE).toInt()
 
             val name = if (nameIdx > 0 && nameIdx < bytes.size) {
                 val end = bytes.indexOf(0, nameIdx.toInt())

@@ -20,7 +20,8 @@ fun AppNavigation(navController: NavHostController, vm: MainViewModel = viewMode
         composable("apk") { ApkAnalyzerScreen(navController, vm) }
         composable("patch") { PatchEditorScreen(navController, vm) }
         composable("info") { FileInfoScreen(navController, vm) }
-        composable("terminal") { TerminalScreen(navController) }        composable("deobfuscate") { DeobfuscateScreen(navController) }
+        composable("terminal") { TerminalScreen(navController) }
+        composable("deobfuscate") { DeobfuscateScreen(navController) }
         composable("obfuscate") { ObfuscateScreen(navController) }
         composable(
             "search?query={query}",

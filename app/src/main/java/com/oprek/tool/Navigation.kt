@@ -23,6 +23,9 @@ fun AppNavigation(navController: NavHostController, vm: MainViewModel = viewMode
         composable("terminal") { TerminalScreen(navController) }
         composable("deobfuscate") { DeobfuscateScreen(navController) }
         composable("obfuscate") { ObfuscateScreen(navController) }
+        composable("disasm") { DisassemblerScreen(navController) }
+        composable("memory") { MemoryAnalyzerScreen(navController) }
+        composable("android") { AndroidToolsScreen(navController) }
         composable(
             "search?query={query}",
             arguments = listOf(navArgument("query") { type = NavType.StringType; defaultValue = "" })

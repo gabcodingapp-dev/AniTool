@@ -101,14 +101,16 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
             val tools = listOf(
                 ToolItem("Hex Viewer", "View & edit raw bytes", Icons.Outlined.Code, AccentGreen, "hex"),
                 ToolItem("Strings", "Extract readable text", Icons.Outlined.TextSnippet, AccentBlue, "strings"),
-                ToolItem("ELF Info", "Parse ELF headers & sections", Icons.Outlined.Memory, AccentPurple, "elf"),
+                ToolItem("Disassembler", "ARM64/x86 disasm", Icons.Outlined.BugReport, AccentPurple, "disasm"),
+                ToolItem("ELF Info", "Parse ELF headers", Icons.Outlined.Memory, AccentCyan, "elf"),
                 ToolItem("APK Info", "Analyze APK structure", Icons.Outlined.Apps, AccentOrange, "apk"),
+                ToolItem("Android Tools", "DEX, classes, Smali", Icons.Outlined.PhoneAndroid, AccentGreen, "android"),
                 ToolItem("Patch Editor", "Binary patching tool", Icons.Outlined.Build, AccentRed, "patch"),
                 ToolItem("Deobfuscate", "Decode/decrypt strings", Icons.Outlined.Key, AccentCyan, "deobfuscate"),
                 ToolItem("Obfuscate", "Encode/encrypt strings", Icons.Outlined.Lock, AccentOrange, "obfuscate"),
-                ToolItem("File Info", "Hash, magic, metadata", Icons.Outlined.Info, AccentPurple, "info"),
+                ToolItem("Memory Analyzer", "Entropy, packer detect", Icons.Outlined.Analytics, AccentPurple, "memory"),
+                ToolItem("File Info", "Hash, magic, metadata", Icons.Outlined.Info, AccentBlue, "info"),
                 ToolItem("Terminal", "Run shell commands", Icons.Outlined.Terminal, AccentGreen, "terminal"),
-                ToolItem("Search", "Find bytes/patterns", Icons.Outlined.Search, AccentPurple, "search"),
             )
 
             LazyVerticalGrid(

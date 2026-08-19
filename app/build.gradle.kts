@@ -38,11 +38,24 @@ android {
         jvmTarget = "17"
     }
 
+    externalNativeBuild {
+        cmake {
+            cppFlags += "-std=c++17"
+            arguments += "-DANDROID_STL=c++_shared"
+        }
+    }
+    ndkVersion = "27.0.12077973"
     buildFeatures {
         compose = true
         buildConfig = true
     }
 
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
     packaging {
         resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     }

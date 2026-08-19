@@ -154,6 +154,7 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
 
             // Copyright + Owner Info
             Spacer(Modifier.height(16.dp))
+            val ctx = LocalContext.current
             Card(
                 Modifier.fillMaxWidth().padding(12.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkCard),
@@ -165,11 +166,23 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
                     Text("© Panxcz & Freebuff", fontSize = 12.sp, color = TextSecondary)
                     Spacer(Modifier.height(8.dp))
                     Text("Owner:", fontSize = 10.sp, color = TextMuted)
-                    Text("@Gk_Gene", fontSize = 12.sp, color = AccentCyan, fontWeight = FontWeight.Bold)
+                    Text("@Gk_Gene", fontSize = 12.sp, color = AccentCyan, fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable {
+                            val i = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://t.me/Gk_Gene"))
+                            ctx.startActivity(i)
+                        })
                     Spacer(Modifier.height(4.dp))
                     Text("Channels:", fontSize = 10.sp, color = TextMuted)
-                    Text("t.me/kembungjir", fontSize = 11.sp, color = AccentBlue)
-                    Text("t.me/lazy_fat_catt", fontSize = 11.sp, color = AccentBlue)
+                    Text("t.me/kembungjir", fontSize = 11.sp, color = AccentBlue,
+                        modifier = Modifier.clickable {
+                            val i = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://t.me/kembungjir"))
+                            ctx.startActivity(i)
+                        })
+                    Text("t.me/lazy_fat_catt", fontSize = 11.sp, color = AccentBlue,
+                        modifier = Modifier.clickable {
+                            val i = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://t.me/lazy_fat_catt"))
+                            ctx.startActivity(i)
+                        })
                 }
             }
 

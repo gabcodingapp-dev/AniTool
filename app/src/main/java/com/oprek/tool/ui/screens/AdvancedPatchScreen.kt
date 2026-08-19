@@ -1,6 +1,9 @@
 package com.oprek.tool.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -11,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -20,6 +24,7 @@ import androidx.navigation.NavController
 import com.oprek.tool.core.FileAnalyzer
 import com.oprek.tool.core.NativeLib
 import com.oprek.tool.ui.theme.*
+import com.oprek.tool.utils.PatchRecommendation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,9 +40,12 @@ fun AdvancedPatchScreen(navController: NavController) {
     var replaceStr by remember { mutableStateOf("") }
     var result by remember { mutableStateOf("") }
     var hasNative by remember { mutableStateOf(false) }
+    var recommendations by remember { mutableStateOf<List<PatchRecommendation>>(emptyList()) }
+    var isScanning by remember { mutableStateOf(false) }
+    var patchedCount by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
-        try { NativeLib.patchNop(byteArrayOf(0,0,0,0), 0); hasNative = true } catch (_: Exception) {}
+        try { NativeLib.patchNop(byteArrayOf(0, 0, 0, 0), 0); hasNative = true } catch (_: Exception) {}
     }
 
     Scaffold(
@@ -55,10 +63,103 @@ fun AdvancedPatchScreen(navController: NavController) {
                 }
             }
 
+            // Auto-detect section
+            Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = DarkCard), shape = RoundedCornerShape(12.dp)) {
+                Column(Modifier.padding(12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("🤖 Auto-Detect Patches", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = AccentOrange, modifier = Modifier.weight(1f))
+                        if (isScanning) CircularProgressIndicator(Modifier.size(18.dp), color = AccentOrange, strokeWidth = 2.dp)
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text("Scans binary for login bypass, license checks, time checks, anti-debug", fontSize = 11.sp, color = TextSecondary)
+                    Spacer(Modifier.height(8.dp))
+                    Button(onClick = {
+                        isScanning = true
+                        scope.launch(Dispatchers.Default) {
+                            val file = File(context.cacheDir, "oprek").listFiles()?.firstOrNull()
+                            if (file != null) {
+                                val data = withContext(Dispatchers.IO) { file.readBytes() }
+                                recommendations = withContext(Dispatchers.Default) { com.oprek.tool.utils.PatternDetector.detectPatchPatterns(data) }
+                            }
+                            isScanning = false
+                        }
+                    }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = AccentOrange), shape = RoundedCornerShape(8.dp),
+                        enabled = !isScanning) {
+                        Icon(Icons.Default.Rocket, null, Modifier.size(16.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Scan Binary", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
+            // Patch recommendations
+            if (recommendations.isNotEmpty()) {
+                Spacer(Modifier.height(8.dp))
+                Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = DarkCard), shape = RoundedCornerShape(12.dp)) {
+                    Column(Modifier.padding(12.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Found ${recommendations.size} patches", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = AccentOrange, modifier = Modifier.weight(1f))
+                            Button(onClick = {
+                                scope.launch(Dispatchers.Default) {
+                                    val file = File(context.cacheDir, "oprek").listFiles()?.firstOrNull() ?: return@launch
+                                    val data = withContext(Dispatchers.IO) { file.readBytes() }
+                                    var count = 0
+                                    for (rec in recommendations) {
+                                        try {
+                                            when {
+                                                rec.suggestedPatch.contains("NOP") -> { NativeLib.patchNop(data, rec.offset); count++ }
+                                                rec.suggestedPatch.contains("MOV W0") -> { NativeLib.patchRetZero(data, rec.offset); count++ }
+                                            }
+                                        } catch (_: Exception) {}
+                                    }
+                                    if (count > 0) {
+                                        FileAnalyzer.patchBytes(file, 0, data)
+                                        patchedCount = count
+                                        result = "Patched $count patterns!"
+                                    }
+                                }
+                            }, colors = ButtonDefaults.buttonColors(containerColor = AccentRed), shape = RoundedCornerShape(8.dp)) {
+                                Text("Patch All ($recommendations.size)", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        recommendations.forEach { rec ->
+                            val severityColor = when (rec.severity) { "high" -> AccentRed; "medium" -> AccentOrange; else -> AccentCyan }
+                            Row(Modifier.fillMaxWidth().padding(vertical = 2.dp).background(DarkSurface).padding(8.dp),
+                                verticalAlignment = Alignment.CenterVertically) {
+                                Column(Modifier.weight(1f)) {
+                                    Text("${rec.type} [${rec.severity.uppercase()}]", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = severityColor)
+                                    Text(rec.description, fontSize = 10.sp, color = TextSecondary)
+                                    Text("0x${"%08X".format(rec.offset)}: ${rec.originalBytes}", fontSize = 10.sp, fontFamily = FontFamily.Monospace, color = AccentCyan)
+                                }
+                                IconButton(onClick = {
+                                    scope.launch(Dispatchers.Default) {
+                                        val file = File(context.cacheDir, "oprek").listFiles()?.firstOrNull() ?: return@launch
+                                        val data = withContext(Dispatchers.IO) { file.readBytes() }
+                                        try {
+                                            when {
+                                                rec.suggestedPatch.contains("NOP") -> NativeLib.patchNop(data, rec.offset)
+                                                rec.suggestedPatch.contains("MOV W0") -> NativeLib.patchRetZero(data, rec.offset)
+                                            }
+                                            FileAnalyzer.patchBytes(file, 0, data)
+                                            result = "Patched ${rec.type} at 0x${"%08X".format(rec.offset)}"
+                                        } catch (e: Exception) { result = "Error: ${e.message}" }
+                                    }
+                                }, modifier = Modifier.size(28.dp)) {
+                                    Icon(Icons.Default.FixPitch, "Patch", Modifier.size(16.dp), tint = severityColor)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
             // Quick patches
             Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = DarkCard), shape = RoundedCornerShape(12.dp)) {
                 Column(Modifier.padding(12.dp)) {
-                    Text("⚡ Quick Patches", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = AccentPurple)
+                    Text("⚡ Manual Patches", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = AccentPurple)
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(value = offsetHex, onValueChange = { offsetHex = it }, label = { Text("Offset (hex)") },
                         modifier = Modifier.fillMaxWidth(), singleLine = true, colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentPurple))
@@ -67,11 +168,6 @@ fun AdvancedPatchScreen(navController: NavController) {
                         QuickPatchBtn("NOP", AccentGreen) { applyQuickPatch(context, offsetHex, "nop") { result = it } }
                         QuickPatchBtn("RET", AccentOrange) { applyQuickPatch(context, offsetHex, "ret") { result = it } }
                         QuickPatchBtn("RET 0", AccentCyan) { applyQuickPatch(context, offsetHex, "ret0") { result = it } }
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        QuickPatchBtn("B unconditional", AccentPurple) { applyQuickPatch(context, offsetHex, "branch") { result = it } }
-                        QuickPatchBtn("Cond→Uncond", AccentRed) { applyQuickPatch(context, offsetHex, "cond2uncond") { result = it } }
                     }
                 }
             }
@@ -116,7 +212,7 @@ fun AdvancedPatchScreen(navController: NavController) {
 
             if (result.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
-                Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = DarkCard), shape = RoundedCornerShape(12.dp)) {
+                Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = AccentGreen.copy(alpha = 0.1f)), shape = RoundedCornerShape(12.dp)) {
                     Text(result, modifier = Modifier.padding(12.dp), fontSize = 12.sp, fontFamily = FontFamily.Monospace, color = AccentGreen)
                 }
             }
@@ -125,7 +221,7 @@ fun AdvancedPatchScreen(navController: NavController) {
 }
 
 @Composable
-fun QuickPatchBtn(label: String, color: androidx.compose.ui.graphics.Color, onClick: () -> Unit) {
+fun QuickPatchBtn(label: String, color: Color, onClick: () -> Unit) {
     Button(onClick = onClick, colors = ButtonDefaults.buttonColors(containerColor = color.copy(alpha = 0.8f)),
         shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {
         Text(label, fontSize = 11.sp, fontWeight = FontWeight.Bold)
@@ -142,8 +238,6 @@ private fun applyQuickPatch(context: android.content.Context, offsetHex: String,
             "nop" -> NativeLib.patchNop(data, offset)
             "ret" -> NativeLib.patchRet(data, offset)
             "ret0" -> NativeLib.patchRetZero(data, offset)
-            "branch" -> NativeLib.patchBranchUncond(data, offset, offset)
-            "cond2uncond" -> NativeLib.patchCondToUncond(data, offset)
         }
         FileAnalyzer.patchBytes(file, 0, data)
         onResult("Patched $type at 0x${"%08X".format(offset)}")

@@ -39,9 +39,9 @@ object FileAnalyzer {
     fun detectType(name: String, bytes: ByteArray): FileType {
         val ext = name.substringAfterLast('.').lowercase()
         return when {
-            ext == "apk" || (bytes.size > 4 && bytes.sliceArray(0..3).contentEquals(byteArrayOf(0x50, 0x4B, 0x03, 0x04))) -> FileType.APK
-            ext == "so" || (bytes.size > 4 && bytes.startsWith(byteArrayOf(0x7F, 0x45, 0x4C, 0x46)) && ext == "so") -> FileType.SO
-            bytes.size > 4 && bytes.startsWith(byteArrayOf(0x7F, 0x45, 0x4C, 0x46)) -> FileType.ELF
+            ext == "apk" || (bytes.size > 4 && bytes.sliceArray(0..3).contentEquals(byteArrayOf(0x50.toByte(), 0x4B.toByte(), 0x03.toByte(), 0x04.toByte()))) -> FileType.APK
+            ext == "so" || (bytes.size > 4 && bytes.startsWith(byteArrayOf(0x7F.toByte(), 0x45.toByte(), 0x4C.toByte(), 0x46.toByte())) && ext == "so") -> FileType.SO
+            bytes.size > 4 && bytes.startsWith(byteArrayOf(0x7F.toByte(), 0x45.toByte(), 0x4C.toByte(), 0x46.toByte())) -> FileType.ELF
             ext == "sh" || ext == "bash" -> FileType.SH
             ext == "dex" -> FileType.DEX
             ext == "bin" || ext == "dat" || ext == "img" -> FileType.BIN
@@ -209,10 +209,10 @@ object FileAnalyzer {
     private fun getMagic(b: ByteArray): String {
         if (b.size < 4) return "Unknown"
         return when {
-            b.startsWith(byteArrayOf(0x7F, 0x45, 0x4C, 0x46)) -> "ELF ${if (b[4]==2.toByte()) "64-bit" else "32-bit"}"
-            b.startsWith(byteArrayOf(0x50, 0x4B, 0x03, 0x04)) -> "ZIP/APK"
-            b.startsWith(byteArrayOf(0xCA, 0xFE, 0xBA, 0xBE)) -> "DEX/Class"
-            b.startsWith(byteArrayOf(0x23, 0x21)) -> "Shell Script (#!/)"
+            b.startsWith(byteArrayOf(0x7F.toByte(), 0x45.toByte(), 0x4C.toByte(), 0x46.toByte())) -> "ELF ${if (b[4]==2.toByte()) "64-bit" else "32-bit"}"
+            b.startsWith(byteArrayOf(0x50.toByte(), 0x4B.toByte(), 0x03.toByte(), 0x04.toByte())) -> "ZIP/APK"
+            b.startsWith(byteArrayOf(0xCA.toByte(), 0xFE.toByte(), 0xBA.toByte(), 0xBE.toByte())) -> "DEX/Class"
+            b.startsWith(byteArrayOf(0x23.toByte(), 0x21.toByte())) -> "Shell Script (#!/)"
             b[0] == 0x4D.toByte() && b[1] == 0x5A.toByte() -> "PE/EXE"
             else -> "Unknown (${b.take(4).joinToString("") { "%02x".format(it) }})"
         }

@@ -45,6 +45,8 @@ fun AppNavigation(navController: NavHostController, vm: MainViewModel = viewMode
         composable("packer") { PackerDetectionScreen(navController) }
         composable("shellpatch") { ShellPatcherScreen(navController) }
         composable("memdump") { MemoryDumpScreen(navController) }
+        composable("lua") { LuaAnalyzerScreen(navController) }
+        composable("pak") { PakArchiveScreen(navController) }
         composable(
             "search?query={query}",
             arguments = listOf(navArgument("query") { type = NavType.StringType; defaultValue = "" })

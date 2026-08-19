@@ -127,6 +127,8 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
                 ToolItem("Packer Detect", "UPX/Themida/OLLMV", Icons.Outlined.Security, AccentRed, "packer"),
                 ToolItem("Shell Patcher", "Edit URLs/keys/commands", Icons.Outlined.Edit, AccentOrange, "shellpatch"),
                 ToolItem("Memory Dump", "Analyze raw memory dump", Icons.Outlined.Storage, AccentCyan, "memdump"),
+                ToolItem("Lua Analyzer", "Parse .lua scripts", Icons.Outlined.Code, AccentGreen, "lua"),
+                ToolItem("Pak Archive", "Analyze .pak/.paks", Icons.Outlined.Archive, AccentOrange, "pak"),
                 ToolItem("File Info", "Hash, magic, metadata", Icons.Outlined.Info, AccentBlue, "info"),
                 ToolItem("Terminal", "Run shell commands", Icons.Outlined.Terminal, AccentRed, "terminal"),
             )

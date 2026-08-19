@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.oprek.tool.ui.screens.*
 
+@Suppress("UNUSED")
 @Composable
 fun AppNavigation(navController: NavHostController, vm: MainViewModel = viewModel()) {
     NavHost(navController = navController, startDestination = "home") {
@@ -19,7 +20,8 @@ fun AppNavigation(navController: NavHostController, vm: MainViewModel = viewMode
         composable("apk") { ApkAnalyzerScreen(navController, vm) }
         composable("patch") { PatchEditorScreen(navController, vm) }
         composable("info") { FileInfoScreen(navController, vm) }
-        composable("terminal") { TerminalScreen(navController) }
+        composable("terminal") { TerminalScreen(navController) }        composable("deobfuscate") { DeobfuscateScreen(navController) }
+        composable("obfuscate") { ObfuscateScreen(navController) }
         composable(
             "search?query={query}",
             arguments = listOf(navArgument("query") { type = NavType.StringType; defaultValue = "" })

@@ -104,7 +104,9 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
                 ToolItem("ELF Info", "Parse ELF headers & sections", Icons.Outlined.Memory, AccentPurple, "elf"),
                 ToolItem("APK Info", "Analyze APK structure", Icons.Outlined.Apps, AccentOrange, "apk"),
                 ToolItem("Patch Editor", "Binary patching tool", Icons.Outlined.Build, AccentRed, "patch"),
-                ToolItem("File Info", "Hash, magic, metadata", Icons.Outlined.Info, AccentCyan, "info"),
+                ToolItem("Deobfuscate", "Decode/decrypt strings", Icons.Outlined.Key, AccentCyan, "deobfuscate"),
+                ToolItem("Obfuscate", "Encode/encrypt strings", Icons.Outlined.Lock, AccentOrange, "obfuscate"),
+                ToolItem("File Info", "Hash, magic, metadata", Icons.Outlined.Info, AccentPurple, "info"),
                 ToolItem("Terminal", "Run shell commands", Icons.Outlined.Terminal, AccentGreen, "terminal"),
                 ToolItem("Search", "Find bytes/patterns", Icons.Outlined.Search, AccentPurple, "search"),
             )
@@ -113,7 +115,7 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
                 columns = GridCells.Fixed(2),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(((tools.size / 2 + tools.size % 2) * 100).dp)
+                    .height(((tools.size / 2 + tools.size % 2) * 100).dp + ((tools.size / 2) * 8).dp)
                     .padding(horizontal = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -127,6 +129,16 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
                     }
                 }
             }
+
+            // Copyright
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = "© Panxcz & Freebuff",
+                fontSize = 11.sp,
+                color = TextMuted,
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
 
             Spacer(Modifier.height(24.dp))
         }

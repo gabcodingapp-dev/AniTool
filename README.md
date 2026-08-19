@@ -13,6 +13,8 @@ A full-featured Android app for binary reverse engineering. Analyze `.sh`, `.apk
 | 🔧 **Patch Editor** | Single + bulk binary patching with export |
 | 🔐 **File Info** | MD5, SHA-256, magic bytes, metadata |
 | 💻 **Terminal** | Built-in shell command executor |
+| 🔓 **Deobfuscate** | Decode strings (hex, base64, unicode, XOR, URL, shell) |
+| 🔒 **Obfuscate** | Encode strings (hex, base64, unicode, XOR, ROT13, shell) |
 | 🔎 **Byte Search** | Find hex patterns in binary files |
 
 ## 🏗️ Build
@@ -55,6 +57,8 @@ app/src/main/java/com/oprek/tool/
         ├── ElfAnalyzerScreen.kt
         ├── ApkAnalyzerScreen.kk
         ├── PatchEditorScreen.kt  # Single + bulk patch
+        ├── DeobfuscateScreen.kt  # Decode/decrypt strings
+        ├── ObfuscateScreen.kt    # Encode/encrypt strings
         ├── FileInfoScreen.kt     # Hashes + metadata
         ├── TerminalScreen.kt     # Shell executor
         └── SearchScreen.kt       # Pattern search
@@ -67,3 +71,9 @@ Dark hacker theme with green/cyan/purple accents — designed for extended rever
 ## ⚠️ Disclaimer
 
 For educational and security research purposes only. Use responsibly.
+
+## ©️ Credits
+
+**Copyright © Panxcz & Freebuff**
+
+Built with ❤️ by [opanx](https://github.com/opanx)

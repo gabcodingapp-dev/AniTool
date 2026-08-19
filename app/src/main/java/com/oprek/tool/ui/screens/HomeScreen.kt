@@ -145,15 +145,26 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
                 }
             }
 
-            // Copyright
+            // Copyright + Owner Info
             Spacer(Modifier.height(16.dp))
-            Text(
-                text = "© Panxcz & Freebuff",
-                fontSize = 11.sp,
-                color = TextMuted,
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
+            Card(
+                Modifier.fillMaxWidth().padding(12.dp),
+                colors = CardDefaults.cardColors(containerColor = DarkCard),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("⚡ OprekTool v2.0", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = AccentGreen)
+                    Spacer(Modifier.height(4.dp))
+                    Text("© Panxcz & Freebuff", fontSize = 12.sp, color = TextSecondary)
+                    Spacer(Modifier.height(8.dp))
+                    Text("Owner:", fontSize = 10.sp, color = TextMuted)
+                    Text("@Gk_Gene", fontSize = 12.sp, color = AccentCyan, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(4.dp))
+                    Text("Channels:", fontSize = 10.sp, color = TextMuted)
+                    Text("t.me/kembungjir", fontSize = 11.sp, color = AccentBlue)
+                    Text("t.me/lazy_fat_catt", fontSize = 11.sp, color = AccentBlue)
+                }
+            }
 
             Spacer(Modifier.height(24.dp))
         }

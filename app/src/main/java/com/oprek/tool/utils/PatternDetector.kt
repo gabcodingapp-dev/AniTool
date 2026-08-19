@@ -91,6 +91,30 @@ object PatternDetector {
             if (reversed != str && isReadable(reversed)) {
                 results.add(ObfuscatedString(offset, str, "Reversed", reversed, 60))
             }
+
+            // Obfuscated URL/link detection
+            val linkPatterns = listOf(
+                Regex("https?://[a-zA-Z0-9._/-]+"),
+                Regex("[a-zA-Z0-9]+\\.[a-zA-Z]{2,}/[a-zA-Z0-9._/-]+"),
+                Regex("[a-zA-Z0-9]{20,}\\.[a-zA-Z]{2,}")
+            )
+            for (pat in linkPatterns) {
+                val match = pat.find(str)
+                if (match != null) {
+                    results.add(ObfuscatedString(offset, str, "Link/URL", match.value, 75))
+                }
+            }
+
+            // Login/auth string detection (explicit)
+            val authKeywords = listOf("login", "password", "username", "token", "session",
+                "verify", "auth", "credential", "otp", "api_key", "secret",
+                "Bearer", "Basic", "password=", "user=", "key=", "token=")
+            for (kw in authKeywords) {
+                if (str.contains(kw, ignoreCase = true)) {
+                    results.add(ObfuscatedString(offset, str, "Auth/Login", str, 90))
+                    break
+                }
+            }
         }
 
         return results.sortedByDescending { it.confidence }
@@ -103,7 +127,10 @@ object PatternDetector {
         val strings = extractStrings(data, 4)
 
         // 1. Login bypass detection
-        val loginStrings = listOf("wrong", "invalid", "login failed", "error", "unauthorized", "denied", "expired")
+        val loginStrings = listOf("wrong", "invalid", "login failed", "error", "unauthorized", "denied", "expired",
+            "password", "username", "credential", "auth", "token", "session",
+            "verify", "verification", "confirm", "otp", "code", "captcha",
+            "block", "banned", "restricted", "not found", "failed", "incorrect")
         for ((offset, str) in strings) {
             val lower = str.lowercase()
             if (loginStrings.any { lower.contains(it) }) {

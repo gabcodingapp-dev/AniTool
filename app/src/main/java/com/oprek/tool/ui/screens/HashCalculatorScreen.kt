@@ -33,7 +33,8 @@ import androidx.compose.ui.graphics.Color
 fun HashCalculatorScreen(navController: NavController) {
     val context = LocalContext.current
     var input by remember { mutableStateOf("") }
-    val context = LocalContext.current
+    var results by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
+
     LaunchedEffect(Unit) {
         val file = java.io.File(context.cacheDir, "oprek").listFiles()?.firstOrNull()
         if (file != null) {
@@ -47,8 +48,6 @@ fun HashCalculatorScreen(navController: NavController) {
             )
         }
     }
-
-    var results by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
 
     Scaffold(
         topBar = {

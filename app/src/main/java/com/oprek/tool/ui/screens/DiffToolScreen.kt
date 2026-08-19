@@ -59,6 +59,22 @@ fun DiffToolScreen(navController: NavController) {
         }
     }
 
+    // Auto-compare when both files loaded
+    LaunchedEffect(file1Data, file2Data) {
+        val d1 = file1Data; val d2 = file2Data
+        if (d1 != null && d2 != null) {
+            val sb = StringBuilder(); var diffs = 0
+            val maxLen = maxOf(d1.size, d2.size)
+            for (i in 0 until minOf(maxLen, 4096)) {
+                val b1 = if (i < d1.size) d1[i].toInt() and 0xFF else -1
+                val b2 = if (i < d2.size) d2[i].toInt() and 0xFF else -1
+                if (b1 != b2) { sb.appendLine("0x${"%08X".format(i)}: ${if (b1 >= 0) "%02X".format(b1) else "??"} != ${if (b2 >= 0) "%02X".format(b2) else "??"}"); diffs++ }
+            }
+            diffResult = sb.toString().ifBlank { "Files are identical (first 4096 bytes)" }
+            stats = "Diffs: $diffs | File A: ${d1.size}B | File B: ${d2.size}B"
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("⚖️ Diff Tool", fontWeight = FontWeight.Bold) },

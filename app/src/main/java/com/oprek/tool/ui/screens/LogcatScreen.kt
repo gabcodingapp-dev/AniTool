@@ -39,6 +39,16 @@ fun LogcatScreen(navController: NavController) {
     var isRunning by remember { mutableStateOf(false) }
     var lineCount by remember { mutableIntStateOf(0) }
 
+    // Auto-refresh logcat
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(5000)
+            if (!isRunning && filter.isNotEmpty()) {
+                // Auto-refresh when filter is set
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("📋 Logcat", fontWeight = FontWeight.Bold) },

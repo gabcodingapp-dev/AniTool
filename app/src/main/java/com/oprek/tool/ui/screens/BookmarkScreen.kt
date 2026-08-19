@@ -38,6 +38,28 @@ fun BookmarkScreen(navController: NavController) {
     var newOffset by remember { mutableStateOf("") }
     var newLabel by remember { mutableStateOf("") }
 
+    // Auto-scan for interesting addresses on load
+    LaunchedEffect(Unit) {
+        val file = java.io.File(context.cacheDir, "oprek").listFiles()?.firstOrNull() ?: return@LaunchedEffect
+        val data = withContext(kotlinx.coroutines.Dispatchers.IO) { file.readBytes().copyOf(minOf(file.length().toInt(), 1_000_000)) }
+        // Find ELF magic
+        for (i in 0 until data.size - 4) {
+            if (data[i] == 0x7F.toByte() && data[i+1] == 'E'.code.toByte() && data[i+2] == 'L'.code.toByte() && data[i+3] == 'F'.code.toByte()) {
+                bookmarks.add(BookmarkEntry(i.toLong(), "ELF Header", System.currentTimeMillis())); break
+            }
+        }
+        // Find function prologues (STP X29, X30)
+        var count = 0
+        for (i in 0 until data.size - 4 step 4) {
+            if (count >= 5) break
+            val insn = data[i].toInt() and 0xFF or ((data[i+1].toInt() and 0xFF) shl 8) or
+                    ((data[i+2].toInt() and 0xFF) shl 16) or ((data[i+3].toInt() and 0xFF) shl 24)
+            if (insn == 0xA9BF7BFD.toInt() || insn == 0xA9007BFD.toInt()) {
+                bookmarks.add(BookmarkEntry(i.toLong(), "Function prologue", System.currentTimeMillis())); count++
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

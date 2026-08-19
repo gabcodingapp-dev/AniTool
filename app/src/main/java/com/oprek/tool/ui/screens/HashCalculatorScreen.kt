@@ -33,6 +33,21 @@ import androidx.compose.ui.graphics.Color
 fun HashCalculatorScreen(navController: NavController) {
     val context = LocalContext.current
     var input by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        val file = java.io.File(context.cacheDir, "oprek").listFiles()?.firstOrNull()
+        if (file != null) {
+            val bytes = file.readBytes()
+            input = file.name + " (" + bytes.size + " bytes)"
+            results = mapOf(
+                "MD5" to md5(bytes), "SHA-1" to sha(bytes, "SHA-1"),
+                "SHA-256" to sha(bytes, "SHA-256"), "SHA-512" to sha(bytes, "SHA-512"),
+                "CRC32" to crc32(bytes), "Length" to bytes.size.toString() + " bytes",
+                "Hex" to bytes.take(32).joinToString(" ") { "%02X".format(it) } + "..."
+            )
+        }
+    }
+
     var results by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
 
     Scaffold(

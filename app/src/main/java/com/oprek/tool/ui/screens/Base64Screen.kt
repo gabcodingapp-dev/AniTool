@@ -32,6 +32,16 @@ fun Base64Screen(navController: NavController) {
     var output by remember { mutableStateOf("") }
     var mode by remember { mutableStateOf("b64enc") }
 
+    // Auto-detect and convert when file loaded
+    LaunchedEffect(Unit) {
+        val ctx = context
+        val file = java.io.File(ctx.cacheDir, "oprek").listFiles()?.firstOrNull() ?: return@LaunchedEffect
+        val bytes = withContext(kotlinx.coroutines.Dispatchers.IO) { file.readBytes().copyOf(minOf(file.length().toInt(), 1000)) }
+        input = bytes.joinToString(" ") { "%02X".format(it) }
+        mode = "hexdec"
+        output = String(bytes, Charsets.UTF_8).filter { it.code in 0x20..0x7E || it == '\n' }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("🔄 Encoder/Decoder", fontWeight = FontWeight.Bold) },

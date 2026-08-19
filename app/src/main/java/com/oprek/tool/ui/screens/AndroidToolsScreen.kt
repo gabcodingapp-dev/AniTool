@@ -117,7 +117,7 @@ fun AndroidToolsScreen(navController: NavController) {
                                     maxLines = 1, modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()))
                                 Text(parts.getOrElse(1) { "" }, fontSize = 10.sp, color = AccentOrange, modifier = Modifier.width(60.dp))
                             }
-                        })
+                        }
                     }
                 }
             }

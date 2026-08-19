@@ -1,10 +1,6 @@
 #include <jni.h>
 #include <string>
 #include <cstring>
-#include <cmath>
-
-// Capstone
-#include <capstone/capstone.h>
 
 // C functions
 extern "C" {
@@ -13,11 +9,6 @@ extern "C" {
 #include "dex_parser.c"
 #include "obfuscate.c"
 #include "patch_utils.c"
-}
-
-// Helper: get byte array from Java
-static jbyteArray get_bytes(JNIEnv *env, jbyteArray arr) {
-    return arr;
 }
 
 // ======== ELF ========
@@ -64,14 +55,8 @@ Java_com_oprek_tool_core_NativeLib_elfGetSections(JNIEnv *env, jclass, jbyteArra
     int count = elf_parse_sections((const unsigned char *)bytes, len, sections, 256);
     env->ReleaseByteArrayElements(data, bytes, JNI_ABORT);
 
-    if (count <= 0) {
-        jclass strClass = env->FindClass("java/lang/String");
-        jobjectArray arr = env->NewObjectArray(0, strClass, nullptr);
-        return arr;
-    }
-
     jclass strClass = env->FindClass("java/lang/String");
-    jobjectArray result = env->NewObjectArray(count, strClass, nullptr);
+    jobjectArray result = env->NewObjectArray(count > 0 ? count : 0, strClass, nullptr);
 
     for (int i = 0; i < count; i++) {
         char buf[512];
@@ -88,7 +73,8 @@ Java_com_oprek_tool_core_NativeLib_elfGetSections(JNIEnv *env, jclass, jbyteArra
     return result;
 }
 
-// ======== DISASSEMBLER (CAPSTONE) ========
+// ======== DISASSEMBLER (pure C - simple) ========
+// Capstone not bundled - use simple hex disassembly display
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_oprek_tool_core_NativeLib_disassemble(JNIEnv *env, jclass,
         jbyteArray code, jlong offset, jint arch, jint mode, jint count) {
@@ -96,51 +82,24 @@ Java_com_oprek_tool_core_NativeLib_disassemble(JNIEnv *env, jclass,
     jsize len = env->GetArrayLength(code);
     jbyte *bytes = env->GetByteArrayElements(code, nullptr);
 
-    csh handle;
-    cs_insn *insn;
-    cs_arch cs_arch_val;
-    cs_mode cs_mode_val;
-
-    switch (arch) {
-        case 0: cs_arch_val = CS_ARCH_ARM; break;
-        case 1: cs_arch_val = CS_ARCH_ARM64; break;
-        case 2: cs_arch_val = CS_ARCH_X86; break;
-        default: cs_arch_val = CS_ARCH_ARM64; break;
-    }
-
-    switch (mode) {
-        case 0: cs_mode_val = CS_MODE_ARM; break;
-        case 1: cs_mode_val = CS_MODE_THUMB; break;
-        case 2: cs_mode_val = CS_MODE_ARM64; break;
-        case 3: cs_mode_val = CS_MODE_64; break;
-        case 4: cs_mode_val = CS_MODE_32; break;
-        default: cs_mode_val = CS_MODE_ARM64; break;
-    }
-
     std::string result;
-    if (cs_open(cs_arch_val, cs_mode_val, &handle) != CS_ERR_OK) {
-        env->ReleaseByteArrayElements(code, bytes, JNI_ABORT);
-        return env->NewStringUTF("Failed to initialize Capstone");
-    }
-
-    insn = cs_malloc(handle);
-    const uint8_t *code_ptr = (const uint8_t *)bytes;
-    size_t code_size = len;
-    uint64_t addr = (uint64_t)offset;
     int printed = 0;
+    uint64_t addr = (uint64_t)offset;
+    int i = 0;
 
-    while (cs_disasm_iter(handle, &code_ptr, &code_size, &addr, insn) && printed < count) {
-        char line[256];
-        snprintf(line, sizeof(line), "0x%016llX:  %-8s %s %s\n",
-            insn->address, insn->mnemonic, insn->op_str, "");
+    while (i + 4 <= len && printed < count) {
+        // Simple hex display (real disasm needs Capstone)
+        char line[128];
+        uint32_t insn = bytes[i] | (bytes[i+1] << 8) | (bytes[i+2] << 16) | (bytes[i+3] << 24);
+        snprintf(line, sizeof(line), "0x%016llX:  %02X %02X %02X %02X    .word 0x%08X\n",
+            addr, (uint8_t)bytes[i], (uint8_t)bytes[i+1], (uint8_t)bytes[i+2], (uint8_t)bytes[i+3], insn);
         result += line;
+        addr += 4;
+        i += 4;
         printed++;
     }
 
-    cs_free(insn, 1);
-    cs_close(&handle);
     env->ReleaseByteArrayElements(code, bytes, JNI_ABORT);
-
     return env->NewStringUTF(result.c_str());
 }
 

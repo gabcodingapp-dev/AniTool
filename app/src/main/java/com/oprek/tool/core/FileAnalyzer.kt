@@ -149,9 +149,11 @@ object FileAnalyzer {
             val size = if (is64) readU64(bytes, base.toInt() + 32, isLE) else readU32(bytes, base.toInt() + 20, isLE).toLong()
             val sectType = readU32(bytes, base.toInt() + 4, isLE).toInt()
 
-            val name = if (nameIdx > 0 && nameIdx < bytes.size) {
-                val end = bytes.indexOf(0, nameIdx.toInt())
-                String(bytes, nameIdx.toInt(), if (end > nameIdx) (end - nameIdx).toInt() else 16)
+            val name = if (nameIdx > 0u && nameIdx.toInt() < bytes.size) {
+                val start = nameIdx.toInt()
+                var end = start
+                while (end < bytes.size && bytes[end] != 0.toByte()) end++
+                String(bytes, start, (end - start).coerceAtMost(64))
             } else "?"
 
             sections.add(ElfSection(name, offset, size, sectType))

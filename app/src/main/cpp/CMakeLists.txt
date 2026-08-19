@@ -4,14 +4,9 @@ project(oprek_native C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
-# Main shared library (no Capstone - pure C parsers)
+# C sources are #included inside jni_bridge.cpp — do NOT list them separately
 add_library(oprek_native SHARED
     jni_bridge.cpp
-    elf_parser.c
-    pe_parser.c
-    dex_parser.c
-    obfuscate.c
-    patch_utils.c
 )
 
 target_link_libraries(oprek_native

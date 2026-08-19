@@ -34,11 +34,11 @@ Java_com_oprek_tool_core_NativeLib_elfGetInfo(JNIEnv *env, jclass, jbyteArray da
     char buf[512];
     snprintf(buf, sizeof(buf),
         "Arch: %s %s\n"
-        "Entry: 0x%016llX\n"
-        "Program Headers: %u @ 0x%llX\n"
-        "Section Headers: %u @ 0x%llX\n"
+        "Entry: 0x%016lX\n"
+        "Program Headers: %u @ 0x%lX\n"
+        "Section Headers: %u @ 0x%lX\n"
         "Section StrTab idx: %u\n"
-        "File size: %llu bytes",
+        "File size: %lu bytes",
         info.is_64 ? "ELF64" : "ELF32",
         info.is_le ? "Little Endian" : "Big Endian",
         info.entry, info.phnum, info.phoff,
@@ -60,7 +60,7 @@ Java_com_oprek_tool_core_NativeLib_elfGetSections(JNIEnv *env, jclass, jbyteArra
 
     for (int i = 0; i < count; i++) {
         char buf[512];
-        snprintf(buf, sizeof(buf), "%s|%s|0x%llX|%llu|0x%llX|%u",
+        snprintf(buf, sizeof(buf), "%s|%s|0x%lX|%lu|0x%lX|%u",
             sections[i].name,
             elf_section_type_str(sections[i].type),
             sections[i].offset,

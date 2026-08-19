@@ -118,8 +118,11 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
                 ToolItem("Recent Files", "History of opened files", Icons.Outlined.History, AccentCyan, "recent"),
                 ToolItem("Memory Analyzer", "Entropy, packer detect", Icons.Outlined.Analytics, AccentRed, "memory"),
                 ToolItem("Logcat", "Capture Android logs", Icons.Outlined.List, AccentGreen, "logcat"),
+                ToolItem("Hex Copy", "Export bytes as C/Python", Icons.Outlined.ContentCopy, AccentPurple, "hexcopy"),
+                ToolItem("ELF Symbols", "Symbol table + dynamic", Icons.Outlined.DataObject, AccentCyan, "elfsymbol"),
+                ToolItem("Hook Generator", "LD_PRELOAD + trampoline", Icons.Outlined.Link, AccentOrange, "inlinehook"),
                 ToolItem("File Info", "Hash, magic, metadata", Icons.Outlined.Info, AccentBlue, "info"),
-                ToolItem("Terminal", "Run shell commands", Icons.Outlined.Terminal, AccentOrange, "terminal"),
+                ToolItem("Terminal", "Run shell commands", Icons.Outlined.Terminal, AccentRed, "terminal"),
             )
 
             LazyVerticalGrid(

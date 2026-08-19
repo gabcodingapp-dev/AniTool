@@ -37,6 +37,9 @@ fun AppNavigation(navController: NavHostController, vm: MainViewModel = viewMode
         composable("base64") { Base64Screen(navController) }
         composable("antidebug") { AntiDebugScreen(navController) }
         composable("logcat") { LogcatScreen(navController) }
+        composable("hexcopy") { HexCopyScreen(navController) }
+        composable("elfsymbol") { ELFSymbolScreen(navController) }
+        composable("inlinehook") { InlineHookScreen(navController) }
         composable(
             "search?query={query}",
             arguments = listOf(navArgument("query") { type = NavType.StringType; defaultValue = "" })

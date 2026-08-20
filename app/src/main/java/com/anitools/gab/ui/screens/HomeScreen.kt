@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -97,6 +98,7 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
             Spacer(Modifier.height(8.dp))
 
             val tools = listOf(
+        ToolItem("Changelog", "What\'s New in 2.1", Icons.Filled.NewReleases, "changelog"),
                 ToolItem("Hex Viewer", "View & edit raw bytes", Icons.Outlined.Code, AccentGreen, "hex"),
                 ToolItem("Strings", "Extract readable text", Icons.Outlined.TextSnippet, AccentBlue, "strings"),
                 ToolItem("Disassembler", "ARM64/x86 disasm", Icons.Outlined.BugReport, AccentPurple, "disasm"),

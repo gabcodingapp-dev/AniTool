@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import com.anitools.gab.core.FileType
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -66,10 +67,10 @@ fun FileInfoScreen(navController: NavController, vm: MainViewModel) {
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         val typeIcon = when (info.type) {
-                            com.anitools.gab.core.FileType.ELF, FileType.SO -> Icons.Filled.Memory
-                            com.anitools.gab.core.FileType.APK -> Icons.Filled.PhoneAndroid
-                            com.anitools.gab.core.FileType.SH -> Icons.Filled.Description
-                            com.anitools.gab.core.FileType.BIN -> Icons.Filled.Storage
+                            FileType.ELF, FileType.SO -> Icons.Filled.Memory
+                            FileType.APK -> Icons.Filled.PhoneAndroid
+                            FileType.SH -> Icons.Filled.Description
+                            FileType.BIN -> Icons.Filled.Storage
                             else -> Icons.Filled.InsertDriveFile
                         }
                         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {

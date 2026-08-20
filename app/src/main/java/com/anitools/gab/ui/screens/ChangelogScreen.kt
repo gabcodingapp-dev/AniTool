@@ -7,10 +7,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,14 +37,6 @@ fun ChangelogScreen(navController: NavHostController) {
         },
         containerColor = DarkBg
     ) { padding ->
-        var showContent by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) { showContent = true }
-        if (!showContent) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = AccentViolet)
-            }
-        }
-        AnimatedVisibility(visible = showContent, enter = fadeIn() + slideInVertically()) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -62,12 +53,15 @@ fun ChangelogScreen(navController: NavHostController) {
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.NewReleases, contentDescription = null, tint = AccentViolet, modifier = Modifier.size(20.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("AniTool by Gab", color = AccentViolet, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                        Text("com.anitools.gab • Premium Toolkit", color = TextSecondary, fontSize = 12.sp)
+                            Icon(Icons.Filled.NewReleases, contentDescription = null, tint = AccentViolet, modifier = Modifier.size(20.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("AniTool by Gab", color = AccentViolet, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        }
+                        Text("com.anitools.gab • Premium Toolkit", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
                         Spacer(Modifier.height(8.dp))
-                        Text("Tap any version to see details. New features are highlighted.", color = TextSecondary, fontSize = 13.sp)
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = AccentViolet, trackColor = DarkSurface)
+                        Spacer(Modifier.height(8.dp))
+                        Text("Tap any version to see details. New features are highlighted with live animations.", color = TextSecondary, fontSize = 13.sp)
                     }
                 }
             }
@@ -91,7 +85,7 @@ fun ChangelogScreen(navController: NavHostController) {
                                 }
                             }
                             Spacer(Modifier.weight(1f))
-                            Text(entry.date, color = TextMuted, fontSize = 12.sp)
+                            Text(entry.date, color = TextSecondary, fontSize = 12.sp)
                         }
                         Text(entry.title, color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
                         Spacer(Modifier.height(8.dp))
@@ -114,10 +108,9 @@ fun ChangelogScreen(navController: NavHostController) {
                         Text("💡 Have an idea?", color = TextPrimary, fontWeight = FontWeight.Bold)
                         Text("Open an issue at github.com/gabcodingapp-dev/AniTool", color = AccentCyan, fontSize = 12.sp)
                         Spacer(Modifier.height(8.dp))
-                        Text("Made with 💜 by Gab for creators", color = TextMuted, fontSize = 11.sp)
+                        Text("Made with 💜 by Gab for creators", color = TextSecondary, fontSize = 11.sp)
                     }
                 }
-            }
             }
         }
     }

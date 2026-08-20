@@ -5,10 +5,12 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -64,13 +66,17 @@ fun FileInfoScreen(navController: NavController, vm: MainViewModel) {
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         val typeIcon = when (info.type) {
-                            com.anitools.gab.core.FileType.ELF, com.anitools.gab.core.FileType.SO -> "📦"
-                            com.anitools.gab.core.FileType.APK -> "📱"
-                            com.anitools.gab.core.FileType.SH -> "📜"
-                            com.anitools.gab.core.FileType.BIN -> "💾"
-                            else -> "📄"
+                            com.anitools.gab.core.FileType.ELF, FileType.SO -> Icons.Filled.Memory
+                            com.anitools.gab.core.FileType.APK -> Icons.Filled.PhoneAndroid
+                            com.anitools.gab.core.FileType.SH -> Icons.Filled.Description
+                            com.anitools.gab.core.FileType.BIN -> Icons.Filled.Storage
+                            else -> Icons.Filled.InsertDriveFile
                         }
-                        Text("$typeIcon ${info.name}", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextPrimary)
+                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                            Icon(typeIcon, contentDescription = null, tint = AccentViolet, modifier = Modifier.size(24.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(info.name, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextPrimary)
+                        }
                         Spacer(Modifier.height(16.dp))
 
                         CopyableField("Type", info.type.name, context)

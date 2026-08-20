@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.filled.NewReleases
@@ -98,7 +99,7 @@ fun HomeScreen(navController: NavController, vm: MainViewModel) {
             Spacer(Modifier.height(8.dp))
 
             val tools = listOf(
-        ToolItem("Changelog", "What\'s New in 2.1", Icons.Filled.NewReleases, "changelog"),
+        ToolItem("Changelog", "What's New in 2.1", Icons.Filled.NewReleases, AccentViolet, "changelog"),
                 ToolItem("Hex Viewer", "View & edit raw bytes", Icons.Outlined.Code, AccentGreen, "hex"),
                 ToolItem("Strings", "Extract readable text", Icons.Outlined.TextSnippet, AccentBlue, "strings"),
                 ToolItem("Disassembler", "ARM64/x86 disasm", Icons.Outlined.BugReport, AccentPurple, "disasm"),
@@ -237,13 +238,13 @@ fun FileInfoCard(info: com.anitools.gab.core.FileInfo) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val typeIcon = when (info.type) {
-                    FileType.ELF, FileType.SO -> "📦"
-                    FileType.APK -> "📱"
-                    FileType.SH -> "📜"
-                    FileType.BIN -> "💾"
-                    else -> "📄"
+                    FileType.ELF, FileType.SO -> Icons.Filled.Memory
+                    FileType.APK -> Icons.Filled.PhoneAndroid
+                    FileType.SH -> Icons.Filled.Description
+                    FileType.BIN -> Icons.Filled.Storage
+                    else -> Icons.Filled.InsertDriveFile
                 }
-                Text(typeIcon, fontSize = 32.sp)
+                Icon(typeIcon, contentDescription = null, tint = AccentViolet, modifier = Modifier.size(36.dp))
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(info.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)

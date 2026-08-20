@@ -9,6 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +38,14 @@ fun ChangelogScreen(navController: NavHostController) {
         },
         containerColor = DarkBg
     ) { padding ->
+        var showContent by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) { showContent = true }
+        if (!showContent) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = AccentViolet)
+            }
+        }
+        AnimatedVisibility(visible = showContent, enter = fadeIn() + slideInVertically()) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -51,6 +61,9 @@ fun ChangelogScreen(navController: NavHostController) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(Modifier.padding(16.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.NewReleases, contentDescription = null, tint = AccentViolet, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
                         Text("AniTool by Gab", color = AccentViolet, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                         Text("com.anitools.gab • Premium Toolkit", color = TextSecondary, fontSize = 12.sp)
                         Spacer(Modifier.height(8.dp))
@@ -104,6 +117,7 @@ fun ChangelogScreen(navController: NavHostController) {
                         Text("Made with 💜 by Gab for creators", color = TextMuted, fontSize = 11.sp)
                     }
                 }
+            }
             }
         }
     }

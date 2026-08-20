@@ -151,7 +151,7 @@ fun StringExtractorScreen(navController: NavController, vm: MainViewModel) {
 }
 
 @Composable
-fun StringRowWithHighlight(idx: Int, sp: com.gab.anitool.core.StringPair, filter: String, context: Context) {
+fun StringRowWithHighlight(idx: Int, sp: com.anitools.gab.core.StringPair, filter: String, context: Context) {
     val annotatedText = buildAnnotatedString {
         if (filter.isNotEmpty() && sp.value.contains(filter, ignoreCase = true)) {
             val lowerValue = sp.value.lowercase()

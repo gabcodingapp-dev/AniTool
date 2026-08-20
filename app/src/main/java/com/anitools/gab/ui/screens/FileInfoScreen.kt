@@ -64,10 +64,10 @@ fun FileInfoScreen(navController: NavController, vm: MainViewModel) {
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         val typeIcon = when (info.type) {
-                            com.gab.anitool.core.FileType.ELF, com.gab.anitool.core.FileType.SO -> "📦"
-                            com.gab.anitool.core.FileType.APK -> "📱"
-                            com.gab.anitool.core.FileType.SH -> "📜"
-                            com.gab.anitool.core.FileType.BIN -> "💾"
+                            com.anitools.gab.core.FileType.ELF, com.anitools.gab.core.FileType.SO -> "📦"
+                            com.anitools.gab.core.FileType.APK -> "📱"
+                            com.anitools.gab.core.FileType.SH -> "📜"
+                            com.anitools.gab.core.FileType.BIN -> "💾"
                             else -> "📄"
                         }
                         Text("$typeIcon ${info.name}", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextPrimary)

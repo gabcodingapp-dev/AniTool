@@ -93,7 +93,7 @@ fun ApkField(label: String, value: String) {
 }
 
 @Composable
-fun ApkEntryRow(idx: Int, entry: com.gab.anitool.core.ApkEntry) {
+fun ApkEntryRow(idx: Int, entry: com.anitools.gab.core.ApkEntry) {
     Row(
         Modifier
             .fillMaxWidth()

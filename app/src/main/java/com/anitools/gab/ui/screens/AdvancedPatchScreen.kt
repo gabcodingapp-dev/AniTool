@@ -87,7 +87,7 @@ fun AdvancedPatchScreen(navController: NavController) {
                                         raf.close()
                                         buf
                                     }
-                                    recommendations = withContext(Dispatchers.Default) { com.gab.anitool.utils.PatternDetector.detectPatchPatterns(data) }
+                                    recommendations = withContext(Dispatchers.Default) { com.anitools.gab.utils.PatternDetector.detectPatchPatterns(data) }
                                 }
                             } catch (e: Exception) {
                                 result = "Scan error: ${e.message}"

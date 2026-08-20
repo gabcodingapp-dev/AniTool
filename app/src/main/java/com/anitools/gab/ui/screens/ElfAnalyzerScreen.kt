@@ -92,7 +92,7 @@ fun ElfField(label: String, value: String) {
 }
 
 @Composable
-fun SectionRow(idx: Int, section: com.gab.anitool.core.ElfSection) {
+fun SectionRow(idx: Int, section: com.anitools.gab.core.ElfSection) {
     Row(
         Modifier
             .fillMaxWidth()

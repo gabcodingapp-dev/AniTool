@@ -37,7 +37,7 @@ fun ShellScriptScreen(navController: NavController) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    var scriptInfo by remember { mutableStateOf<com.gab.anitool.utils.ShellScriptInfo?>(null) }
+    var scriptInfo by remember { mutableStateOf<com.anitools.gab.utils.ShellScriptInfo?>(null) }
     var rawContent by remember { mutableStateOf("") }
     var extractedBinaries by remember { mutableStateOf<List<String>>(emptyList()) }
     var isExtracting by remember { mutableStateOf(false) }

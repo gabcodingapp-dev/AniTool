@@ -53,7 +53,7 @@ fun PatchEditorScreen(navController: NavController, vm: MainViewModel) {
                     IconButton(onClick = {
                         val export = vm.exportPatches()
                         if (export.isNotEmpty()) {
-                            val file = com.gab.anitool.core.FileUtils.exportToFile(
+                            val file = com.anitools.gab.core.FileUtils.exportToFile(
                                 navController.context, export, "patches_${System.currentTimeMillis()}.txt"
                             )
                         }
@@ -198,7 +198,7 @@ fun PatchEditorScreen(navController: NavController, vm: MainViewModel) {
 }
 
 @Composable
-fun PatchRow(idx: Int, patch: com.gab.anitool.PatchEntry) {
+fun PatchRow(idx: Int, patch: com.anitools.gab.PatchEntry) {
     Row(
         Modifier
             .fillMaxWidth()

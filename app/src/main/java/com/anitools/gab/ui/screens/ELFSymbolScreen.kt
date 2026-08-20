@@ -36,7 +36,7 @@ fun ELFSymbolScreen(navController: NavController) {
         scope.launch(Dispatchers.Default) {
             val data = withContext(Dispatchers.IO) { file.readBytes() }
             try {
-                val sections = withContext(Dispatchers.IO) { com.gab.anitool.core.NativeLib.elfGetSections(data) }
+                val sections = withContext(Dispatchers.IO) { com.anitools.gab.core.NativeLib.elfGetSections(data) }
                 symbols = sections.filter { it.contains("SYMTAB") || it.contains("DYNSYM") }
                 dynamic = sections.filter { it.contains("DYNAMIC") }
             } catch (_: Exception) {}

@@ -42,8 +42,8 @@ fun ElfHeaderScreen(navController: NavController) {
         val data = withContext(Dispatchers.IO) { file.readBytes() }
         if (data.size < 4 || data[0] != 0x7F.toByte() || data[1] != 'E'.code.toByte()) return@LaunchedEffect
         is64 = data[4] == 2.toByte()
-        headerInfo = withContext(Dispatchers.Default) { com.gab.anitool.core.NativeLib.elfGetInfo(data) }
-        sections = withContext(Dispatchers.Default) { com.gab.anitool.core.NativeLib.elfGetSections(data).toList() }
+        headerInfo = withContext(Dispatchers.Default) { com.anitools.gab.core.NativeLib.elfGetInfo(data) }
+        sections = withContext(Dispatchers.Default) { com.anitools.gab.core.NativeLib.elfGetSections(data).toList() }
     }
 
     Scaffold(

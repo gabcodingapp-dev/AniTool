@@ -54,7 +54,7 @@ fun ExportScreen(navController: NavController) {
                 appendLine("--- ELF Info ---")
                 try {
                     val elfData = file.readBytes()
-                    val elfInfo = com.gab.anitool.core.NativeLib.elfGetInfo(elfData)
+                    val elfInfo = com.anitools.gab.core.NativeLib.elfGetInfo(elfData)
                     appendLine(elfInfo)
                 } catch (_: Exception) { appendLine("N/A") }
                 appendLine()

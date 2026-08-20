@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">OprekTool</string>
-    <string name="copyright">© Panxcz &amp; Freebuff</string>
+    <string name="app_name">AniTool</string>
+    <string name="copyright">© Gab • gabcodingapp-dev</string>
+    <string name="app_subtitle">Premium Toolkit for Creators</string>
 </resources>

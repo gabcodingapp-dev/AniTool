@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.OprekTool"
+        android:theme="@style/Theme.AniTool"
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true">
         <activity

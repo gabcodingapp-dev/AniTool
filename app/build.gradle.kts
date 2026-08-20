@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.oprek.tool"
+    namespace = "com.gab.anitool"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.oprek.tool"
+        applicationId = "com.gab.anitool"
         minSdk = 26
         targetSdk = 35
         versionCode = 2

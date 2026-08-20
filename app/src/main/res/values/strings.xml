@@ -2,5 +2,7 @@
 <resources>
     <string name="app_name">AniTool</string>
     <string name="copyright">© Gab • gabcodingapp-dev</string>
-    <string name="app_subtitle">Premium Toolkit for Creators</string>
+    <string name="app_subtitle">Premium Toolkit — by Gab</string>
+    <string name="dev_name">Gab</string>
+    <string name="dev_handle">gabcodingapp-dev</string>
 </resources>

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.gab.anitool"
+    namespace = "com.anitools.gab"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.gab.anitool"
+        applicationId = "com.anitools.gab"
         minSdk = 26
         targetSdk = 35
         versionCode = 2

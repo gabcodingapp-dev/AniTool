@@ -226,7 +226,7 @@ fun HeroSection(onPickFile: () -> Unit) {
 }
 
 @Composable
-fun FileInfoCard(info: com.gab.anitool.core.FileInfo) {
+fun FileInfoCard(info: com.anitools.gab.core.FileInfo) {
     Card(
         Modifier
             .fillMaxWidth()

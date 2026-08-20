@@ -63,3 +63,11 @@ fun AniToolTheme(content: @Composable () -> Unit) {
     }
     MaterialTheme(colorScheme = colorScheme, content = content)
 }
+
+// Backward compatibility for old color names (used in many screens)
+val AccentGreen = AccentEmerald
+val AccentBlue = AccentIndigo
+val AccentPurple = AccentViolet
+val AccentOrange = AccentAmber
+val AccentRed = AccentRose
+val TextMuted = TextSecondary
